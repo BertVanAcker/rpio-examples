@@ -12,7 +12,7 @@ from rpio.workflow.executer import Executer_GUI, Executer_headless
 # 1 . define the tasks
 tasks = {
     #"Check if robosapiensio package is installed": t_check_robosapiensio,
-    "Generate custom messages": t_generate_messages,
+    "Generate custom messages": t_generate_messages,	
     "Generate swc code skeletons": t_generate_swc_skeletons,
     "Generate swc launch files": t_generate_swc_launch,
     "Generate main file": t_generate_main,
