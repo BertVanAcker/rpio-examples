@@ -8,7 +8,13 @@
 # **********************************************************************************
 from rpio.workflow.tasks import *
 from rpio.workflow.executer import Executer_GUI, Executer_headless
-
+# try:
+#     with open("Design/design.json", "r") as design_file:
+#         design_data = design_file.read()
+#         print(f"Design name: {design_file.name}")
+# except FileNotFoundError:   
+#         print("Design file not found. Please check the path.")
+#         design_data = None
 # 1 . define the tasks
 tasks = {
     #"Check if robosapiensio package is installed": t_check_robosapiensio,

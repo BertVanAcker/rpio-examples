@@ -11,7 +11,6 @@ def HelloWorld_v4():
     #laserScan message
     ranges = data(name='ranges', dataType="Array")
     angle_increment = data(name= 'angle_increment', dataType="Float_64")
-
     laser_scan = message(name="LaserScan",featureList=[ranges,angle_increment])
 
     # rotationAction message
@@ -19,15 +18,17 @@ def HelloWorld_v4():
     duration = data(name="duration",dataType="Float_64")
     direction = message(name="Direction",featureList=[omega,duration])
 
-    # new_data message
+    # new_data Event
     new_data = data(name="new_data",dataType="Boolean")
-    new_data_message = message(name="NewData",featureList=[new_data])
-    # anomaly message
+    new_data_message = message(name="NewDataEvent",featureList=[new_data])
+    
+    # anomaly Event
     anomaly = data(name="anomaly",dataType="Boolean")
-    anomaly_message = message(name="AnomalyMessage",featureList=[anomaly])
+    anomaly_message = message(name="AnomalyEvent",featureList=[anomaly])
 
+    # new_plan Event
     new_plan = data(name="NewPlan",dataType="Boolean")
-    new_plan_message = message(name="NewPlanMessage",featureList=[new_plan])
+    new_plan_event = message(name="NewPlanEvent",featureList=[new_plan])
 
     # legitimate message
     legitimate = data(name="legitimate",dataType="Boolean")
@@ -36,7 +37,7 @@ def HelloWorld_v4():
     #-----------------------------------------------------------------------------------------------------------------------
     #--------------------------------------- LOGICAL ARCHITECTURE ----------------------------------------------------------
     #-----------------------------------------------------------------------------------------------------------------------
-    adaptiveSystem = system(name="adaptiveSystem", description="Example adaptive system",messageList=[laser_scan,direction,anomaly_message,new_plan_message])
+    adaptiveSystem = system(name="adaptiveSystem", description="Example adaptive system",messageList=[laser_scan,direction,anomaly_message,new_plan_event])
 
     #-A- --- managed system ---
     managedSystem = system(name="managedSystem", description="managed system part")
@@ -95,7 +96,7 @@ def HelloWorld_v4():
 
     #TODO: define input
     _laserScan_in = inport(name="laser_scan",type="data", message=laser_scan)
-    _plan_out = outport(name="new_plan",type="event", message=new_plan_message)
+    _plan_out = outport(name="new_plan",type="event", message=new_plan_event)
     _diraction_out = outport(name="direction",type="data", message=direction)
 
     plan.addFeature(_laserScan_in)
@@ -107,12 +108,18 @@ def HelloWorld_v4():
 
     #-LEGITIMATE-
     legitimate = process(name="Legitimate", description="legitimate component")
+    _plan_l_in = inport(name="new_plan",type="event", message=new_plan_event)
+    _legit_out = outport(name= "isLegit",type="event", message=legitimate_message)
+    legitimate.addFeature(_plan_l_in)
+    legitimate.addFeature(_legit_out)
+    legitimize = thread(name="legitimize",featureList=[_plan_l_in,_legit_out],eventTrigger='new_plan')
+    legitimate.addThread(legitimize)
 
     #-EXECUTE-
     execute = process(name="Execute", description="execute component")
 
-    _new_plan_in = inport(name="new_plan",type="event", message=direction)
-    _isLegit = inport(name="isLegit",type="event data", message=legitimate_message)
+    _new_plan_in = inport(name="new_plan",type="event", message=new_plan_event)
+    _isLegit = inport(name="isLegit",type="event", message=legitimate_message)
     _directions = inport(name="directions",type="data", message=direction)
     _directions_out = outport(name="/spin_config",type="data event", message=direction)
 
@@ -123,25 +130,6 @@ def HelloWorld_v4():
 
     executer = thread(name="executer",featureList=[_new_plan_in,_isLegit,_directions, _directions_out])
     execute.addThread(executer)
-
-    # #-KNOWLEDGE-
-    # knowledge = process(name="knowledge", description="knowledge component")
-    #
-    # _weatherConditions = port(name="weatherConditions",type="event data", message=weatherConditions)
-    # _shipPose = port(name="shipPose",type="event data", message=shipPose)
-    # _shipAction = port(name="shipAction",type="event data", message=shipAction)
-    # _pathEstimate = port(name="pathEstimate",type="event data", message=predictedPath)
-    # _pathAnomaly = port(name="pathAnomaly",type="event data", message=AnomalyMessage)
-    # _plan = port(name="plan",type="event data", message=predictedPath)
-    # _isLegit = port(name="isLegit",type="event data", message=legitimateMessage)
-
-    # knowledge.addFeature(_weatherConditions)
-    # knowledge.addFeature(_shipPose)
-    # knowledge.addFeature(_shipAction)
-    # knowledge.addFeature(_pathEstimate)
-    # knowledge.addFeature(_pathAnomaly)
-    # knowledge.addFeature(_plan)
-    # knowledge.addFeature(_isLegit)
 
     managingSystem.addProcess(monitor)
     managingSystem.addProcess(analysis)
@@ -159,17 +147,17 @@ def HelloWorld_v4():
     #--------------------------------------- PHYSICAL ARCHITECTURE ---------------------------------------------------------
     #-----------------------------------------------------------------------------------------------------------------------
 
-    # XEON PROCESSOR CONNTECTION
+    # PC PROCESSOR CONNTECTION
     MIPSCapacity = characteristic(name="MIPSCapacity",value=1000.0,dataType="MIPS")
     I1 = port(name="I1",type="event data")
-    laptop_xeon1 = processor(name="xeon1",propertyList=[MIPSCapacity],featureList=[I1],IP="192.168.0.172")
-    laptop_xeon1.runs_rap_backbone= True    #RUNS THE RoboSAPIENS Adaptive Platform backbone
+    laptop = processor(name="PC",propertyList=[MIPSCapacity],featureList=[I1],IP="192.168.0.172")
+    laptop.runs_rap_backbone= True    #RUNS THE RoboSAPIENS Adaptive Platform backbone
 
 
-    # LATTEPANDA PROCESSOR CONNTECTION
-    MIPSCapacity = characteristic(name="MIPSCapacity",value=2000.0,dataType="MIPS")
-    I2 = port(name="I2",type="event data")
-    lattepanda = processor(name="lattepandaD3",propertyList=[MIPSCapacity],featureList=[I2],IP="192.168.0.161")
+    # # LATTEPANDA PROCESSOR CONNTECTION
+    # MIPSCapacity = characteristic(name="MIPSCapacity",value=2000.0,dataType="MIPS")
+    # I2 = port(name="I2",type="event data")
+    # lattepanda = processor(name="lattepandaD3",propertyList=[MIPSCapacity],featureList=[I2],IP="192.168.0.161")
 
     # WIFI CONNTECTION
     BandWidthCapacity = characteristic(name="BandWidthCapacity",value=100.0,dataType="Mbytesps")
@@ -179,20 +167,20 @@ def HelloWorld_v4():
     interface = bus(name="interface",propertyList=[BandWidthCapacity,Protocol,DataRate,WriteLatency])
 
     interface.addConnection(I1)
-    interface.addConnection(I2)
+    # interface.addConnection(I2)
 
     #-----------------------------------------------------------------------------------------------------------------------
     #--------------------------------------- MAPPING ARCHITECTURE ----------------------------------------------------------
     #-----------------------------------------------------------------------------------------------------------------------
 
-    lattepanda.addProcessorBinding(process=monitor)
-    lattepanda.addProcessorBinding(process=analysis)
-    laptop_xeon1.addProcessorBinding(process=plan)
+    laptop.addProcessorBinding(process=monitor)
+    laptop.addProcessorBinding(process=analysis)
+    laptop.addProcessorBinding(process=plan)
     #laptop_xeon1.addProcessorBinding(process=legitimate)
-    laptop_xeon1.addProcessorBinding(process=execute)
+    laptop.addProcessorBinding(process=execute)
 
-    managingSystem.addProcessor(laptop_xeon1)
-    managingSystem.addProcessor(lattepanda)
+    managingSystem.addProcessor(laptop)
+    # managingSystem.addProcessor(lattepanda)
 
     # -----------------------------------------------------------------------------------------------------------------------
     # --------------------------------------- NODE IMPLEMENTATION ----------------------------------------------------------
@@ -212,7 +200,7 @@ def HelloWorld_v4():
 
     return adaptiveSystem
 
-HelloWorldDesign=HelloWorld_v3()
+HelloWorldDesign=HelloWorld_v4()
 HelloWorldDesign.object2json(fileName="design.json")
 
 
