@@ -67,11 +67,33 @@ services:
     environment:
       - BROKER=emqx
 
+  legitimate:
+    build:
+        context: ./../../Nodes/Legitimate
+        dockerfile: ./Dockerfile
+    container_name: C_Legitimate
+    depends_on:
+        emqx-enterprise:
+            condition: service_healthy
+    environment:
+      - BROKER=emqx
+
   execute:
     build:
         context: ./../../Nodes/Execute
         dockerfile: ./Dockerfile
     container_name: C_Execute
+    depends_on:
+        emqx-enterprise:
+            condition: service_healthy
+    environment:
+      - BROKER=emqx
+
+  trustworthiness:
+    build:
+        context: ./../../Nodes/Trustworthiness
+        dockerfile: ./Dockerfile
+    container_name: C_Trustworthiness
     depends_on:
         emqx-enterprise:
             condition: service_healthy

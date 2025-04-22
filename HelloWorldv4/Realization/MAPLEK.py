@@ -3,8 +3,8 @@ from messages import *
 import time
 #<!-- cc_include START--!>
 from fractions import Fraction
-from .lidarocclusion.masks import BoolLidarMask
-from .lidarocclusion.sliding_lidar_masks import sliding_lidar_mask, sliding_prob_lidar_mask
+from lidarocclusion.masks import BoolLidarMask
+from lidarocclusion.sliding_lidar_masks import sliding_lidar_mask, sliding_prob_lidar_mask
 from typing import List, Tuple, Dict
 import traceback
 import json
@@ -253,7 +253,7 @@ class Plan(Node):
 
     # -----------------------------AUTO-GEN SKELETON FOR planner-----------------------------
     def planner(self,msg):
-        _NewPlanMessage = NewPlanMessage()
+        _NewPlanMessage = NewPlanEvent()
         _Direction = Direction()
 
         #<!-- cc_code_planner START--!>
@@ -416,12 +416,12 @@ class Trustworthiness(Node):
         self.register_event_callback(event_key='maple', callback=self.trust_check)
         # self.register_event_callback(event_key='anomaly', callback=self.planner)        # LINK <inport> anomaly
 
-monitor = Monitor("./Deployment/Nodes/Monitor/config.yaml")
-analyse = Analysis("./Deployment/Nodes/Analysis/config.yaml")
-plan = Plan("./Deployment/Nodes/Plan/config.yaml")
-execute = Execute("./Deployment/Nodes/Execute/config.yaml")
-legitimate = Legitimate("./Deployment/Nodes/Legitimate/config.yaml")
-trust_c = Trustworthiness("./Deployment/Nodes/Trustworthiness/config.yaml")
+monitor = Monitor("./Realization/Nodes/Monitor/config.yaml")
+analyse = Analysis("./Realization/Nodes/Analysis/config.yaml")
+plan = Plan("./Realization/Nodes/Plan/config.yaml")
+execute = Execute("./Realization/Nodes/Execute/config.yaml")
+legitimate = Legitimate("./Realization/Nodes/Legitimate/config.yaml")
+trust_c = Trustworthiness("./Realization/Nodes/Trustworthiness/config.yaml")
 
 monitor.register_callbacks()
 analyse.register_callbacks()

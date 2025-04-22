@@ -2,5 +2,7 @@
     <node name="Monitor" path="Realization/ManagingSystem/Nodes/Monitor"/>
     <node name="Analysis" path="Realization/ManagingSystem/Nodes/Analysis"/>
     <node name="Plan" path="Realization/ManagingSystem/Nodes/Plan"/>
+    <node name="Legitimate" path="Realization/ManagingSystem/Nodes/Legitimate"/>
     <node name="Execute" path="Realization/ManagingSystem/Nodes/Execute"/>
+    <node name="Trustworthiness" path="Realization/ManagingSystem/Nodes/Trustworthiness"/>
 </launch>

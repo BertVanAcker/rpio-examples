@@ -118,11 +118,12 @@ def HelloWorld_v4():
     #-EXECUTE-
     execute = process(name="Execute", description="execute component")
 
+
     _new_plan_in = inport(name="new_plan",type="event", message=new_plan_event)
     _isLegit = inport(name="isLegit",type="event", message=legitimate_message)
     _directions = inport(name="directions",type="data", message=direction)
     _directions_out = outport(name="/spin_config",type="data event", message=direction)
-
+    
     execute.addFeature(_new_plan_in)
     execute.addFeature(_isLegit)
     execute.addFeature(_directions)
@@ -131,11 +132,44 @@ def HelloWorld_v4():
     executer = thread(name="executer",featureList=[_new_plan_in,_isLegit,_directions, _directions_out])
     execute.addThread(executer)
 
+    
+    #-TRUSTWORTHINESS-
+    tc = process(name="Trustworthiness", description="TC component")
+
+
+    _anomaly_tc_in = inport(name="anomaly",type="event", message=anomaly_message)
+    _new_plan_tc_in = inport(name="new_plan",type="event", message=new_plan_event)
+    _isLegit_tc_in = inport(name="isLegit",type="event", message=legitimate_message)
+    _maple_tc_in = inport(name="maple",type="event", message=new_plan_event)
+    _spin_config_tc_in = inport(name="spin_config",type="data event", message=direction)
+    _stage_tc_out = outport(name="stage",type="data event", message=direction)
+
+
+    t_a = thread(name="t_a",featureList=[_anomaly_tc_in, _stage_tc_out],eventTrigger='anomaly')
+    t_p = thread(name="t_p",featureList=[_new_plan_tc_in, _stage_tc_out],eventTrigger='new_plan')
+    t_l = thread(name="t_l",featureList=[_isLegit_tc_in, _stage_tc_out],eventTrigger='isLegit')
+    t_e = thread(name="t_e",featureList=[_spin_config_tc_in, _stage_tc_out],eventTrigger='spin_config')
+    
+    tc.addFeature(_new_plan_tc_in)
+    tc.addFeature(_anomaly_tc_in)
+    tc.addFeature(_isLegit_tc_in)
+    tc.addFeature(_maple_tc_in)
+    tc.addFeature(_spin_config_tc_in)
+    tc.addFeature(_stage_tc_out)
+
+    trust_check = thread(name="trust_check",featureList=[_maple_tc_in],eventTrigger='maple')
+    tc.addThread(t_a)
+    tc.addThread(t_p)
+    tc.addThread(t_l)   
+    tc.addThread(t_e)
+    tc.addThread(trust_check)
+
     managingSystem.addProcess(monitor)
     managingSystem.addProcess(analysis)
     managingSystem.addProcess(plan)
     managingSystem.addProcess(legitimate)
     managingSystem.addProcess(execute)
+    managingSystem.addProcess(tc)
     # managingSystem.addProcess(knowledge)
 
     #---------------------SYSTEM LEVEL---------------------------
@@ -176,8 +210,9 @@ def HelloWorld_v4():
     laptop.addProcessorBinding(process=monitor)
     laptop.addProcessorBinding(process=analysis)
     laptop.addProcessorBinding(process=plan)
-    #laptop_xeon1.addProcessorBinding(process=legitimate)
+    laptop.addProcessorBinding(process=legitimate)
     laptop.addProcessorBinding(process=execute)
+    laptop.addProcessorBinding(process=tc)
 
     managingSystem.addProcessor(laptop)
     # managingSystem.addProcessor(lattepanda)
@@ -190,12 +225,14 @@ def HelloWorld_v4():
     plan.formalism = "python"
     legitimate.formalism = "python"
     execute.formalism = "python"
+    tc.formalism = "python"
 
     monitor.containerization = True
     analysis.containerization = True
     plan.containerization = True
     legitimate.containerization = True
     execute.containerization = True
+    tc.containerization = True
 
 
     return adaptiveSystem
