@@ -81,7 +81,7 @@ class Trustworthiness(Node):
         #self.publish_event(event_key='stage',message=_Direction)    # LINK <outport> stage
     # -----------------------------AUTO-GEN SKELETON FOR t_e-----------------------------
     def t_e(self,msg):
-        spin_config = self.knowledge.read("spin_config",queueSize=1)
+        spin_config = self.knowledge.read("/spin_config",queueSize=1)
         _Direction = Direction()
 
         #<!-- cc_code_t_e START--!>
@@ -115,8 +115,8 @@ class Trustworthiness(Node):
         self.register_event_callback(event_key='new_plan', callback=self.t_p)        # LINK <inport> new_plan
         self.register_event_callback(event_key='isLegit', callback=self.t_l)     # LINK <eventTrigger> isLegit
         self.register_event_callback(event_key='isLegit', callback=self.t_l)        # LINK <inport> isLegit
-        self.register_event_callback(event_key='spin_config', callback=self.t_e)     # LINK <eventTrigger> spin_config
-        self.register_event_callback(event_key='spin_config', callback=self.t_e)        # LINK <inport> spin_config
+        self.register_event_callback(event_key='\spin_config', callback=self.t_e)     # LINK <eventTrigger> \spin_config
+        self.register_event_callback(event_key='/spin_config', callback=self.t_e)        # LINK <inport> /spin_config
         self.register_event_callback(event_key='maple', callback=self.trust_check)     # LINK <eventTrigger> maple
         self.register_event_callback(event_key='maple', callback=self.trust_check)        # LINK <inport> maple
 
